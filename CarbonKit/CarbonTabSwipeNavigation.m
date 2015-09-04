@@ -30,8 +30,6 @@
 	NSUInteger numberOfTabs;
 	NSInteger selectedIndex;
 	
-	CGFloat extraSpace;
-	
 	CGPoint previewsOffset;
 	
 	NSMutableArray *tabs;
@@ -61,7 +59,6 @@
 	self.delegate = delegate;
 	numberOfTabs = names.count;
 	rootViewController = viewController;
-	extraSpace = 15;
 	
 	// create page controller
 	pageController = [UIPageViewController alloc];
@@ -91,7 +88,7 @@
 	// create segment control
 	segmentController = [[UISegmentedControl alloc] initWithItems:names];
 	CGRect segRect = segmentController.frame;
-	segRect.size.height = 44;
+	segRect.size.height = [self tabHeight].doubleValue;
 	segmentController.frame = segRect;
 	
 	UIColor *normalTextColor = [self.view.tintColor colorWithAlphaComponent:0.8];
@@ -115,7 +112,7 @@
 	for (UIView *tabView in [segmentController subviews]) {
 		for (UIView *label in tabView.subviews) {
 			if ([label isKindOfClass:[UILabel class]]) {
-				CGFloat tabWidth = roundf([label sizeThatFits:CGSizeMake(FLT_MAX, 0)].width + extraSpace * 2);
+				CGFloat tabWidth = roundf([label sizeThatFits:CGSizeMake(FLT_MAX, 16)].width + 30); // 30 extra space
 				[segmentController setWidth:tabWidth forSegmentAtIndex:i];
 				
 				segmentedWidth += tabWidth;
@@ -303,11 +300,6 @@
 	[self.view addSubview:shadow];
 }
 
-// set extraSpace
-- (void)setExtraSpace:(CGFloat)extra {
-	extraSpace = extra;
-}
-
 - (void)segmentAction:(UISegmentedControl *)segment {
 	UIView *tab = tabs[segmentController.selectedSegmentIndex];
 	indicatorWidthConst.constant = tab.frame.size.width;
@@ -367,7 +359,7 @@
 	__weak __typeof__(self) weakSelf = self;
 	[pageController setViewControllers:@[viewController]
 							 direction:UIPageViewControllerNavigationDirectionForward
-							  animated:[self shouldAnimate]
+                              animated:[self shouldAnimate]
 							completion:^(BOOL finished) {
 								__strong __typeof__(self) strongSelf = weakSelf;
 								// call delegate
@@ -439,7 +431,7 @@
 		
 		for (UIView *label in tabView.subviews) {
 			if ([label isKindOfClass:[UILabel class]]) {
-				CGFloat tabWidth = roundf([label sizeThatFits:CGSizeMake(FLT_MAX, 0)].width + extraSpace * 2);
+				CGFloat tabWidth = roundf([label sizeThatFits:CGSizeMake(FLT_MAX, 0)].width + 30); // 30 extra space
 				[segmentController setWidth:tabWidth forSegmentAtIndex:i];
 				
 				segmentedWidth += tabWidth;
@@ -645,7 +637,7 @@
 
 -(NSNumber*)tabHeight
 {
-    return @44;
+    return @50;
 }
 
 -(BOOL)shouldAnimate
