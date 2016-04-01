@@ -27,7 +27,6 @@
     
     BOOL isNotDragging;
     
-    NSUInteger numberOfTabs;
     NSInteger selectedIndex;
     
     CGFloat extraSpace;
@@ -59,7 +58,7 @@
     
     // init
     self.delegate = delegate;
-    numberOfTabs = names.count;
+    self.numberOfTabs = names.count;
     rootViewController = viewController;
     extraSpace = 15;
     
@@ -129,21 +128,21 @@
     }
     
     if (segmentedWidth < self.view.frame.size.width) {
-        if (self.view.frame.size.width / (float)numberOfTabs < maxTabWidth) {
+        if (self.view.frame.size.width / (float)self.numberOfTabs < maxTabWidth) {
             
-            for (int i = 0; i < numberOfTabs; i++) {
+            for (int i = 0; i < self.numberOfTabs; i++) {
                 [segmentController setWidth:maxTabWidth forSegmentAtIndex:i];
             }
             
-            segmentedWidth = maxTabWidth * numberOfTabs;
+            segmentedWidth = maxTabWidth * self.numberOfTabs;
         } else {
-            maxTabWidth = roundf(self.view.frame.size.width/(float)numberOfTabs);
+            maxTabWidth = roundf(self.view.frame.size.width/(float)self.numberOfTabs);
             
-            for (int i = 0; i < numberOfTabs; i++) {
+            for (int i = 0; i < self.numberOfTabs; i++) {
                 [segmentController setWidth:maxTabWidth forSegmentAtIndex:i];
             }
             
-            segmentedWidth = maxTabWidth * numberOfTabs;
+            segmentedWidth = maxTabWidth * self.numberOfTabs;
         }
     }
     
@@ -317,7 +316,7 @@
     
     if (index == selectedIndex) return;
     
-    if (index >= numberOfTabs)
+    if (index >= self.numberOfTabs)
         return;
     
     UIViewController *viewController = [viewControllers objectForKey:[NSNumber numberWithInteger:index]];
@@ -455,17 +454,17 @@
     if (segmentedWidth < size.width) {
         
         // tabs width as max tab width or calcucate it
-        if (size.width / (float)numberOfTabs < maxTabWidth) {
+        if (size.width / (float)self.numberOfTabs < maxTabWidth) {
             
-            for (int i = 0; i < numberOfTabs; i++) {
+            for (int i = 0; i < self.numberOfTabs; i++) {
                 [segmentController setWidth:maxTabWidth forSegmentAtIndex:i];
             }
             
-            segmentedWidth = maxTabWidth * numberOfTabs;
+            segmentedWidth = maxTabWidth * self.numberOfTabs;
         } else {
-            maxTabWidth = roundf(size.width/(float)numberOfTabs);
+            maxTabWidth = roundf(size.width/(float)self.numberOfTabs);
             
-            for (int i = 0; i < numberOfTabs; i++) {
+            for (int i = 0; i < self.numberOfTabs; i++) {
                 [segmentController setWidth:maxTabWidth forSegmentAtIndex:i];
             }
             
@@ -488,7 +487,7 @@
 
 - (void)setCurrentTabIndex:(NSUInteger)currentTabIndex
 {
-    if (selectedIndex != currentTabIndex && currentTabIndex < numberOfTabs) {
+    if (selectedIndex != currentTabIndex && currentTabIndex < self.numberOfTabs) {
         segmentController.selectedSegmentIndex = currentTabIndex;
         
         [self segmentAction:segmentController];
@@ -503,7 +502,7 @@
     
     NSInteger index = selectedIndex;
     
-    if (index++ < numberOfTabs - 1 && index <= numberOfTabs - 1) {
+    if (index++ < self.numberOfTabs - 1 && index <= self.numberOfTabs - 1) {
         
         UIViewController *nextViewController = [viewControllers objectForKey:[NSNumber numberWithInteger:index]];
         
@@ -567,7 +566,7 @@
     CGPoint offset = scrollView.contentOffset;
     
     CGFloat scrollViewWidth = scrollView.frame.size.width;
-    if (selectedIndex < 0 || selectedIndex > numberOfTabs-1)
+    if (selectedIndex < 0 || selectedIndex > self.numberOfTabs-1)
         return;
     
     if (!isNotDragging) {
@@ -575,55 +574,59 @@
         if (offset.x < scrollViewWidth) {
             // we are moving back
             
+            // Move tabs if visible
             if (selectedIndex - 1 < 0)
                 return;
-            
-            float newX = offset.x - scrollViewWidth;
-            
-            UIView *selectedTab = (UIView*)tabs[selectedIndex];
-            UIView *backTab = (UIView*)tabs[selectedIndex - 1];
-            
-            float selectedOriginX = selectedTab.frame.origin.x;
-            float backTabWidth = backTab.frame.size.width;
-            
-            float widthDiff = selectedTab.frame.size.width - backTabWidth;
-            
-            float newOriginX = selectedOriginX + newX / scrollViewWidth * backTabWidth;
-            indicatorLeftConst.constant = newOriginX;
-            
-            float newWidth = selectedTab.frame.size.width + newX / scrollViewWidth * widthDiff;
-            indicatorWidthConst.constant = newWidth;
-            
-            [UIView animateWithDuration:0.01 animations:^{
-                [indicator layoutIfNeeded];
-            }];
+            if(![self tabHeight].integerValue < 1) {
+                float newX = offset.x - scrollViewWidth;
+                
+                UIView *selectedTab = (UIView*)tabs[selectedIndex];
+                UIView *backTab = (UIView*)tabs[selectedIndex - 1];
+                
+                float selectedOriginX = selectedTab.frame.origin.x;
+                float backTabWidth = backTab.frame.size.width;
+                
+                float widthDiff = selectedTab.frame.size.width - backTabWidth;
+                
+                float newOriginX = selectedOriginX + newX / scrollViewWidth * backTabWidth;
+                indicatorLeftConst.constant = newOriginX;
+                
+                float newWidth = selectedTab.frame.size.width + newX / scrollViewWidth * widthDiff;
+                indicatorWidthConst.constant = newWidth;
+                
+                [UIView animateWithDuration:0.01 animations:^{
+                    [indicator layoutIfNeeded];
+                }];
+            }
             
         } else {
             // we are moving forward
             
-            if (selectedIndex + 1 >= numberOfTabs)
+            if (selectedIndex + 1 >= self.numberOfTabs)
                 return;
             
-            float newX = offset.x - scrollViewWidth;
-            
-            UIView *selectedTab = (UIView*)tabs[selectedIndex];
-            UIView *nexTab = (UIView*)tabs[selectedIndex + 1];
-            
-            float selectedOriginX = selectedTab.frame.origin.x;
-            float nextTabWidth = nexTab.frame.size.width;
-            
-            float widthDiff = nextTabWidth - selectedTab.frame.size.width;
-            
-            float newOriginX = selectedOriginX + newX / scrollViewWidth * selectedTab.frame.size.width;
-            indicatorLeftConst.constant = newOriginX;
-            
-            float newWidth = selectedTab.frame.size.width + newX / scrollViewWidth * widthDiff;
-            indicatorWidthConst.constant = newWidth;
-            
-            [UIView animateWithDuration:0.01 animations:^{
-                [indicator layoutIfNeeded];
-            }];
-            
+            // Move tabs if visible
+            if(![self tabHeight].integerValue < 1) {
+                float newX = offset.x - scrollViewWidth;
+                
+                UIView *selectedTab = (UIView*)tabs[selectedIndex];
+                UIView *nexTab = (UIView*)tabs[selectedIndex + 1];
+                
+                float selectedOriginX = selectedTab.frame.origin.x;
+                float nextTabWidth = nexTab.frame.size.width;
+                
+                float widthDiff = nextTabWidth - selectedTab.frame.size.width;
+                
+                float newOriginX = selectedOriginX + newX / scrollViewWidth * selectedTab.frame.size.width;
+                indicatorLeftConst.constant = newOriginX;
+                
+                float newWidth = selectedTab.frame.size.width + newX / scrollViewWidth * widthDiff;
+                indicatorWidthConst.constant = newWidth;
+                
+                [UIView animateWithDuration:0.01 animations:^{
+                    [indicator layoutIfNeeded];
+                }];
+            }
         }
     }
     

@@ -53,7 +53,7 @@
  *  Carbon Tab Swipe Interface
  */
 @interface CarbonTabSwipeNavigation : UIViewController
-
+@property NSUInteger numberOfTabs;
 /**
  *	CarbonTabSwipeDelegate
  */
