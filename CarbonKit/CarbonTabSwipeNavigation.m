@@ -408,20 +408,22 @@
 }
 
 - (void)fixOffset {
-    CGRect selectedTabRect = ((UIView*)tabs[selectedIndex]).frame;
-    CGFloat indicatorMaxOriginX = tabScrollView.frame.size.width / 2 - selectedTabRect.size.width / 2;
+    if (tabs.count > selectedIndex) {
+        CGRect selectedTabRect = ((UIView*)tabs[selectedIndex]).frame;
+        CGFloat indicatorMaxOriginX = tabScrollView.frame.size.width / 2 - selectedTabRect.size.width / 2;
     
-    CGFloat offsetX = selectedTabRect.origin.x-indicatorMaxOriginX;
+        CGFloat offsetX = selectedTabRect.origin.x-indicatorMaxOriginX;
     
-    if (offsetX < 0) offsetX = 0;
-    if (offsetX > segmentController.frame.size.width-tabScrollView.frame.size.width)
-        offsetX = segmentController.frame.size.width-tabScrollView.frame.size.width;
+        if (offsetX < 0) offsetX = 0;
+        if (offsetX > segmentController.frame.size.width-tabScrollView.frame.size.width)
+            offsetX = segmentController.frame.size.width-tabScrollView.frame.size.width;
     
-    [UIView animateWithDuration:0.3 animations:^{
-        tabScrollView.contentOffset = CGPointMake(offsetX, 0);
-    }];
+        [UIView animateWithDuration:0.3 animations:^{
+            tabScrollView.contentOffset = CGPointMake(offsetX, 0);
+        }];
     
-    previewsOffset = tabScrollView.contentOffset;
+        previewsOffset = tabScrollView.contentOffset;
+    }
 }
 
 - (void)resizeTabs {
